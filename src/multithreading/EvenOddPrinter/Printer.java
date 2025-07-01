@@ -1,21 +1,27 @@
 package multithreading.EvenOddPrinter;
 
 public class Printer implements Runnable{
-    private Counter counter;
-    private int val;
+    private final Counter counter;
+    private final int threadId;
 
-    public Printer(Counter counter, int val){
+    public Printer(Counter counter, int threadId){
         this.counter = counter;
-        this.val = val;
+        this.threadId = threadId;
     }
 
     @Override
     public void run() {
         while (true){
-            synchronized (Counter.class){
-                if(counter.getCount() % 2 != val && counter.getCount() <= counter.getMaxNum()){
+            synchronized (counter){
+                //double the use case of acquiring lock on Counter.class or object of counter.
+                //both are different
+                if (counter.getCount() % 2 != threadId && counter.getCount() <= counter.getMaxNum()){
                     try {
-                        counter.wait();
+                        this.wait();
+                        //this.wait() method gives IllegalMonitorStateException current thread is not the owner here
+                        //it happens when an object tries wait or notify without holding a lock.
+                        // here, this refers to object of Printer class, but lock acquired by reference of counter class.
+                        //so we need to use counter.wait() and counter.notify()/notifyAll() in order to wait/notify all other threads which are waiting acquire lock on counter object.
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
