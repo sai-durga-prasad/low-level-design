@@ -16,8 +16,9 @@ public class Printer implements Runnable{
                 //double the use case of acquiring lock on Counter.class or object of counter.
                 //both are different
                 if (counter.getCount() % 2 != threadId && counter.getCount() <= counter.getMaxNum()){
+                    //either if or while condition will work here as we're handling with only two threads and only one thread will be on waiting state at once
                     try {
-                        this.wait();
+                        counter.wait();
                         //this.wait() method gives IllegalMonitorStateException current thread is not the owner here
                         //it happens when an object tries wait or notify without holding a lock.
                         // here, this refers to object of Printer class, but lock acquired by reference of counter class.
@@ -27,11 +28,13 @@ public class Printer implements Runnable{
                     }
                 }
                 if(counter.getCount() > counter.getMaxNum()){
-                    counter.notifyAll();
+                    //notify will work here as we're handling with only two threads and only one thread will be on waiting state at once
+                    counter.notify();
                     break;
                 }
                 counter.print();
-                counter.notifyAll();
+                //notify will work here as we're handling with only two threads and only one thread will be on waiting state at once
+                counter.notify();
             }
         }
     }
